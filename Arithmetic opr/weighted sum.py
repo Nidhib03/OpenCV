@@ -3,7 +3,7 @@
 import cv2
 import numpy as np
 
-image1 = cv2.imread('cassal.jpg')
+image1 = cv2.imread('Collapsed.jpg')
 image2 = cv2.imread('Galaxy.jpg')
 
 # cv2.addWeighted is applied over the image inputs with applied parameters
