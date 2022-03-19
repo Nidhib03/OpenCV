@@ -1,7 +1,7 @@
 import cv2 
 from deepface import DeepFace
 faceCascade =cv2.CascadeClassifier('/home/rao/anaconda3/envs/Emotion/haarcascade_frontalface_default.xml')
-cap = cv2.VideoCapture(-1)
+cap = cv2.VideoCapture(-1)  # for linux (-1), for inbuilt web cam (0), external connected cam (1) - windows
 while True:
     ret, frame = cap.read()
     result = DeepFace.analyze(frame, actions = ['emotion'])
