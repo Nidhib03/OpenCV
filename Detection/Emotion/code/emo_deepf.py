@@ -3,7 +3,7 @@ from turtle import color
 import matplotlib.pyplot as plt
 from deepface import DeepFace
 import cv2
-img = cv2.imread("/home/rao/anaconda3/envs/Emotion/20220319_160147.jpg")
+img = cv2.imread("/home/rao/anaconda3/envs/Emotion/train/Disguist/images (7).jpg")
 plt.imshow(img)
 # plt.show()
 
