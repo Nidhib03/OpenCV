@@ -5,6 +5,8 @@ from PIL import Image
 import easyocr
 import csv
 import pandas as pd
+import glob
+import os
 model_path = 'model.tflite'
 
 # Load the labels into a list
@@ -88,6 +90,7 @@ def run_odt_and_draw_results(image_path, interpreter, threshold=0.5):
     '''crop image from bounding box'''
     
     crop = im[ymin:ymax, xmin:xmax]
+    # cv2.imwrite("Cropped.jpg", crop)
     # cv2.imshow("cropped", crop)
     # cv2.waitKey(0)
     # cv2.destroyAllWindows()
@@ -96,32 +99,19 @@ def run_odt_and_draw_results(image_path, interpreter, threshold=0.5):
     
     reader = easyocr.Reader(['en'])
     result = reader.readtext(crop)
-    print(len(result))
-    
+    # print("result",result)
     txt = ''
     for res in result:
           txt += res[1]
+          with open("data.csv", "w+", newline='') as csvfile:
+            writer = csv.writer(csvfile)
+            writer.writerow(["Date", "Number Plate"]) 
+            writer.writerow([sl, (res[1]), txt])
+  
     print("LICENSE PLATE NUMBER :::::::::",txt)
-    
-        
-    # raw_data = {'Date': '09/04/2022 17:51:', 'Number Plate': [txt]}  # time.asctime( time.localtime(time.time()) 
-    # df = pd.DataFrame(raw_data, columns = ['Date', 'Number Plate'])
-    # df.to_csv('data.csv', index=False)
-
-  # while len(result)==True:
-  #  with open("data.csv", "w+", newline='') as csvfile:
-  #   writer = csv.writer(csvfile)
-  #   writer.writerow(["Date", "Number Plate"])
-  #   writer.writerow(["05/04/2022 11∶11∶22", txt])
-    with open("data.csv", "a") as csvfile:
-      writer = csv.writer(csvfile)
-      writer.writerow(["05/04/2022 11:11:23", txt])
-                
-    # with open("data.csv", "r") as csvfile:
-    #   reader = csv.reader(csvfile)
-    #   for row in reader:
-    #         print(row)
-
+    # with open("data.csv", "a") as csvfile:
+    #         writer = csv.writer(csvfile)
+    #         writer.writerow(["05/04/2022 11:11:27", txt])
     
     # Make adjustments to make the label visible for all objects
     y = ymin - 15 if ymin - 15 > 15 else ymin + 15
@@ -136,9 +126,30 @@ def run_odt_and_draw_results(image_path, interpreter, threshold=0.5):
 
 DETECTION_THRESHOLD = 0.3
 
-TEMP_FILE = 'python_vehicles/images/images09-04-2022 16:28:1.jpg'
+# TEMP_FILE = 'car.jpg'
 
-im = Image.open(TEMP_FILE)
+'''loadd image by iteration'''
+
+folders = glob.glob('/home/rao/vehc_tflite/tensorflow-lite/python_vehicles/images')
+imagenames_list = []
+for folder in folders:
+   for f in glob.glob(folder+'/*.jpg'):
+       imagenames_list.append(f)
+
+st= imagenames_list[0]
+sl = st[61:80]
+print("string ::: ", sl)
+
+read_images = []        
+for image in imagenames_list:
+  img = cv2.imread(image, cv2.IMREAD_GRAYSCALE)
+  add = read_images.append(img)
+  # cv2.imshow("frame", img)
+# print("string ::: ", imagenames_list([1], [71:80]))
+# cv2.imshow('frame', read_images[1])
+
+
+im = Image.open(imagenames_list[2])
 im.thumbnail((512, 512), Image.ANTIALIAS)
 # im.save(TEMP_FILE, 'PNG')
 
@@ -148,11 +159,11 @@ interpreter.allocate_tensors()
 
 # Run inference and draw detection result on the local copy of the original file
 detection_result_image = run_odt_and_draw_results(
-    TEMP_FILE,
+    imagenames_list[2],
     interpreter,
     threshold=DETECTION_THRESHOLD
 )
 
 # Show the detection result
 image  = Image.fromarray(detection_result_image)
-# image.show()
+image.show()
