@@ -1,31 +1,5 @@
-# import matplotlib.pyplot as plt
-# import keras_ocr
-# from tensorflow import keras
-# import tensorflow as tf
-
-# # keras-ocr will automatically download pretrained weights for the detector and recognizer.
-# pipeline = keras_ocr.pipeline.Pipeline()
-# # Get a set of three example images
-# images = [
-#     keras_ocr.tools.read(img) for img in['2car.jpg', 'crop_2line.jpg']
-# ]
-# len (images)
-# plt.figure(figsize=(10,20))
-# # plt.imshow(images[0])
-# # plt.imshow(images[1])
-
-# # Each list of predictions in prediction_groups is a list of
-# # (word, box) tuples.
-# prediction_groups = pipeline.recognize(images)
-
-# # Plot the predictions
-# fig, axs = plt.subplots(nrows=len(images), figsize=(10, 20))
-# for ax, image, predictions in zip(axs, images, prediction_groups):
-#     keras_ocr.tools.drawAnnotations(image=image, predictions=predictions, ax=ax)
-
-
-
-import keras_ocr 
+import matplotlib.pyplot as plt
+import keras_ocr
 
 pipeline = keras_ocr.pipeline.Pipeline()
 
@@ -35,7 +9,6 @@ keras_ocr.tools.read(url) for url in [
     'https://storage.googleapis.com/gcptutorials.com/examples/keras-ocr-img-2.png'
 ]
 ]
-
 # print(images[0])
 # print(images[1])
 
@@ -51,9 +24,7 @@ for text, box in predicted_image_2:
 
 
 
-
-
-
+'''on tflite model'''
 
 import string
 from tkinter.messagebox import NO
@@ -70,13 +41,15 @@ import keras_ocr
 
 model_path = 'model.tflite'
 classes = ['license_plate']
+
 COLORS = np.random.randint(0, 255, size=(len(classes), 3), dtype=np.uint8)
+
 all_dir = os.listdir('images')
 
 scopes = ['https://www.googleapis.com/auth/spreadsheets', 'https://www.googleapis.com/auth/drive']
 credentials = ServiceAccountCredentials.from_json_keyfile_name("flowing-radio-347411-f6b13db7738b.json", scopes)
 file = gspread.authorize(credentials) 
-sheet = file.open("Number plate Recognition").get_worksheet(9)
+sheet = file.open("Number plate Recognition").get_worksheet(10)
 header = ["Date", "Number plate"]
 sheet.insert_row(header)
 
@@ -87,7 +60,7 @@ for image in all_dir:
     im = Image.open(path)
     im.thumbnail((512, 512), Image.ANTIALIAS)
     string = image.split(".")[0]
-    
+    tlist=[]
     l = len(sheet.col_values(1)) 
     l += 1
     sheet.update('A'+str(l),string)
@@ -152,17 +125,18 @@ for image in all_dir:
             for text, box in i:
                 print("text :::::::::", text)
                 temp_NP_List.append(text)
-          temp_NP_List.remove('ind')
-          print("temp_NP_List :::::::::::::::::",temp_NP_List)
-          # num_plate = "".join(temp_NP_List)       
+            temp_NP_List.remove('ind')
         except:
           pass
+        print("temp_NP_List :::::::::::::::::",temp_NP_List)
+        num = (''.join(temp_NP_List))
+        print("Number plate:::",num)
+        tlist.append(num)
+        print(tlist)
         print("one plate detected")
-      try:
-        sheet.update(('B'+str(l)),"".join(temp_NP_List))
-      except UnboundLocalError:
-        pass
-        
+
+        sheet.update('B'+str(l),[tlist])
+
       original_uint8 = original_image_np.astype(np.uint8)
       return original_uint8
 
